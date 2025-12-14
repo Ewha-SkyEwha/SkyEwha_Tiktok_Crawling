@@ -1,5 +1,6 @@
 # 환경 변수 및 민감 정보
 .env
+.env.*
 
 # Jupyter 관련
 *.ipynb_checkpoints/
@@ -15,3 +16,24 @@ __pycache__/
 
 # 가상환경 폴더
 venv/
+venvs/
+.venv/
+env/
+ENV/
+
+# 로그 / 임시 파일
+*.log
+*.tmp
+*.bak
+
+# 오디오 및 대용량 파일 (선택)
+*.mp3
+*.mp4
+*.wav
+*.m4a
+*.webm
+
+# 모델 캐시 (whisper, transformers 등)
+~/.cache/
+.cache/
+.whisper/

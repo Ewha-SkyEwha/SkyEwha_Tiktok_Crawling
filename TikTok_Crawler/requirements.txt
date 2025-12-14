@@ -2,3 +2,6 @@ playwright
 pandas
 scikit-learn
 sentence-transformers
+
+# !pip install sentence-transformers scikit-learn pandas playwright
+# !playwright install chromium
