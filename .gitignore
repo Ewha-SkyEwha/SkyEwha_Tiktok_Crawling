@@ -37,3 +37,10 @@ ENV/
 ~/.cache/
 .cache/
 .whisper/
+
+# 틱톡 캐시
+tiktok_cookies.json
+
+# 깃허브에 올리지 않을 파일
+cluster_hashtag.py
+music_crawler.py
