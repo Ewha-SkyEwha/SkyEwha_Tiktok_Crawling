@@ -12,92 +12,90 @@
 
 ---
 
-## 🖼️ 프로젝트 구성
+## TikTok Hashtag Crawler 설명
 
-- **whisper-keyword-generator**
-  </br>Whisper API와 OpenAI를 사용해 동영상 속 음성을 텍스트로 변환하고 해시태그로 사용할 만한 키워드를 추출합니다.
+TikTok Creative Center의 인기 해시태그 데이터를 자동으로 수집하고,
+Travel 관련 해시태그를 추출하여 외부 API(Trendie 서비스)로 전송하는 크롤러입니다.
 
-- **TikTok Crawler**
-  </br>TikTok Creative Center에서 제공하는 인기 순위 목록을 수집합니다. 인기 있는 음악 정보와 여행 관련 인기 해시태그를 크롤링하여 음악과 여행 트렌드를 분석합니다.
+본 프로젝트는 Playwright 기반의 브라우저 자동화를 활용하여
+TikTok 로그인 세션을 유지한 상태에서 데이터를 수집합니다.
 
-- **YouTube Travel Analyzer** (텍스트 분석 모듈)  
-  유튜브 API를 사용해 여행 관련 영상을 수집하고, 텍스트 분석으로 여행 키워드를 추출합니다. 추출한 키워드를 기반으로 영상의 여행 관련도를 계산하여 최종적으로 여행 관련 영상 제목 목록을 제공합니다.
+## 소스코드 설명
+1. save_cookies.py
+   
+   `save_tiktok_cookies()`
+   - Playwright를 사용하여 TikTok Creative Center 페이지 접속
+   - 사용자가 직접 로그인 완료 후 Enter 입력
+   - 로그인 세션을 tiktok_cookies.json 파일로 저장
+   - 이후 크롤링 시 로그인 과정 생략 가능
+   
+2. hashtag_crawler.py
 
-    ### 📁 주요 파일 구조
-
-    ```
-    whisper-keyword-generator.ipynb    # ASR(Automatic Speech Recognition) & 키워드 추출
-    ```
-
-    ```
-    TikTok_Crawler/
-    │
-    ├── hashtag_crawler.py         # 틱톡 해시태그 순위 크롤링                 
-    ├── music_crawler.py           # 틱톡 음악 순위 크롤링
-    ├── save_cookies.py            # 로그인 세션 쿠키 저장
-    ├── requirements.txt           # 필요한 패키지 목록
-    ```
-    
-    ```
-    youtube_travel_analyzer/
-    │
-    ├── main.py                  # 실행 스크립트
-    ├── youtube_api.py           # 유튜브 API 호출
-    ├── text_processing.py       # 텍스트 전처리 및 키워드 분석
-    ├── config.py                # 환경변수 및 설정값 로딩
-    ├── stopwords-ko.txt         # 한국어 불용어 리스트
-    ├── requirements.txt         # 필요한 패키지 목록
-    ├── utils.py                 # 결과 출력 및 저장
-    ├── .env                     # 환경변수 파일 (로컬 전용)
-    ```
-
-    ### ⚙️ 설치 및 실행
+   `scrape_travel_hashtags_fixed()`
+    - TikTok Creative Center 해시태그 페이지 접속
+    - Industry 드롭다운에서 Travel 필터 선택
+    - 페이지 스크롤을 통해 해시태그 데이터 로딩
+    - DOM 전체 텍스트를 파싱하여 해시태그명, 주간 게시물 수 추출
   
-    **TikTok_Crawler/**
-    1. Python(최소 3.8 필요) 설치
-    2. `pip install -r requirements.txt`
+    `send_hashtags_to_api(hashtags)`
+    - 크롤링한 해시태그 데이터를 외부 API로 POST 전송
+    - 게시물 수를 정수형으로 변환 후 전송
+    - API 통신 성공/실패 로그 출력
+
+---
+  ## 🛠 How to Build
+  본 프로젝트는 별도의 빌드 과정이 필요하지 않습니다.
+  Python 스크립트 기반으로 실행됩니다.
+
+  ## ⚙️ How to Install
+   1. Python(최소 3.8 필요) 설치
+   2. `pip install -r requirements.txt`
         </br>playwright 최초 설치일 경우 아래 명령어로 브라우저 드라이버 설치:
           </br>`playwright install`
-    3. 틱톡 크리에이티브 센터 로그인 쿠키 저장:
+   3. 틱톡 크리에이티브 센터 로그인 쿠키 저장:
         </br>`python save_tiktok_cookies.py` 실행
        </br>자동 실행된 브라우저(틱톡 크리에이티브 센터)에 직접 로그인 후 터미널에 Enter 입력
-    4. 인기 해시태그 순위 크롤링 및 클러스터링:
+   4. 인기 해시태그 순위 크롤링:
         </br>`python tiktok_hashtag_crawler.py` 실행
-    5. 인기 음악 순위 크롤링:
-        </br>`python tiktok_music_crawler.py` 실행
-  
-    **youtube_travel_analyzer/**
-    1. 가상환경 생성 및 활성화  
-    2. `pip install -r requirements.txt`  
-    3. `.env` 파일 생성 후 아래 변수 설정:
 
-    ```env
-    YOUTUBE_API_KEY="여기에_API_키"
-    STOPWORDS_PATH="stopwords-ko.txt"
-    REGION_CODE="KR"
-    MAX_RESULTS=50
-    TOP_KEYWORDS=3
-    TRAVEL_SCORE_THRESHOLD=3
-    ```
+  ## 🧪 How to Test
+  1. 로그인 쿠키 저장 테스트
+     정상적으로 `tiktok_cookies.json` 생성 여부 확인
+  2. 크롤링 테스트
+     `debug_tiktok_page.png` 생성 여부 확인
+  3. API 전송 테스트
+     API URL을 로컬 환경 또는 Trendie 서버로 설정 후 POST 요청 성공 로그 확인
 
-    4. `python main.py` 실행
+  ## 📂 주요 폴더 구조
+  ```text
+  .
+  ├── TikTok_Crawler/
+  │   └── debug_tiktok_page.png   # 크롤링 시점 페이지 스크린샷
+  │   └── hashtag_crawler.py      # 해시태그 크롤링 및 API 전송 메인 로직
+  │   └── requirements.txt
+  │   └── tiktok_cookies.json     # 로그인 세션 쿠키 (자동 생성)
+  │   └── save_cookies.py         # TikTok 로그인 후 쿠키 저장
+  ├── .gitignore
+  └── README.md
+  ```
+## 📊 Description of Sample Data
+크롤링 데이터 예시
+```
+{
+  "hashtag": "travelkorea",
+  "week_posts": 125000
+}
+```
+hashtag: 해시태그 이름
 
-    ### ⚠️ 주의사항
+week_posts: 최근 주간 게시물 수 (정수)
 
-  
-    **whisper-keyword-generator/**
-    - `.env` 파일에 API 키 등 민감 정보 포함, 깃허브 업로드 금지  
-    - API 키는OpenAI Platform에서 발급받을 것
-
-    **TikTok_Crawler/**
-    - 크롤링 실패/페이지 구조 변경 시:
-      1. playwright 브라우저 최신화
-      2. 브라우저 창 크기에 맞추어 스크롤 조정
-      3. 코드 내 셀렉터(버튼/텍스트 등) 점검
-    - 쿠키 저장 파일명 tiktok_cookies.json
-    - 쿠키 만료/로그아웃 시:
-      </br>`tiktok_cookies.json` 삭제 후 쿠키 저장 재진행
-
-    **youtube_travel_analyzer/**
-    - `.env` 파일에 API 키 등 민감 정보 포함, 깃허브 업로드 금지  
-    - API 키는 Google Cloud Console에서 발급받을 것
+## Description of Used Open Source
+1. Playwright
+브라우저 자동화 및 크롤링
+https://playwright.dev/
+Apache 2.0 License
+2. Requests
+외부 API 통신
+https://docs.python-requests.org/
+Apache 2.0 License
