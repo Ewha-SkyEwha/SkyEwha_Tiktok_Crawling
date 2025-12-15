@@ -99,3 +99,8 @@ Apache 2.0 License
 외부 API 통신
 https://docs.python-requests.org/
 Apache 2.0 License
+
+## Disclaimer
+This project is for educational and internal use only.
+
+Users are responsible for complying with TikTok’s Terms of Service.
