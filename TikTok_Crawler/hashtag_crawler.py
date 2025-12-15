@@ -2,7 +2,6 @@ from playwright.sync_api import sync_playwright
 import re
 import time
 from TikTok_Crawler import save_cookies
-import pandas as pd
 import requests
 
 COOKIES_FILE = "tiktok_cookies.json"
